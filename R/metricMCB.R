@@ -130,7 +130,7 @@ metricMCB<-function(
       }
       mcb_SVM_res<-rbind(mcb_SVM_res,write_MCB)
     }
-    cat("\n")
+    #cat("\n")
     colnames(mcb_SVM_res)<-c("MCB_no","training_set_auc","test_set_auc")
     names(best_model)<-c("MCB_no","svm_model")
     FunctionResults$MCB_svm_matrix_training<-MCB_svm_matrix_training
@@ -192,7 +192,7 @@ metricMCB<-function(
       }
       mcb_cox_res<-rbind(mcb_cox_res,write_MCB)
     }
-    cat("\n")
+    #cat("\n")
     colnames(mcb_cox_res)<-c("MCB_no","training_set_auc","test_set_auc")
     names(best_model)<-c("MCB_no","cox_model")
     FunctionResults$MCB_cox_matrix_training<-MCB_cox_matrix_training
