@@ -87,7 +87,7 @@ metricMCB<-function(
       MCB_svm_matrix_test_set<-NULL
     }
     FunctionResults<-NULL
-    rz=!(is.na(Surv)|Surv[,1]==0)
+    rz=!(is.na(Surv[,1])|Surv[,1]==0)
     times=Surv[rz]
     best_auc<-0
     best_model<-NULL
@@ -152,7 +152,7 @@ metricMCB<-function(
       MCB_cox_matrix_test_set<-NULL
     }
     FunctionResults<-NULL
-    rz=!(is.na(Surv)|Surv[,1]==0)
+    rz=!(is.na(Surv[,1])|Surv[,1]==0)
     times=Surv[rz]
     best_auc<-0
     best_model<-NULL
@@ -214,7 +214,7 @@ metricMCB<-function(
       MCB_lasso_matrix_test_set<-NULL
     }
     FunctionResults<-NULL
-    rz=!(is.na(Surv)|Surv[,1]==0)
+    rz=!(is.na(Surv[,1])|Surv[,1]==0)
     times=Surv[rz]
     best_auc<-0
     best_model<-NULL
