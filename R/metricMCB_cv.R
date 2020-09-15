@@ -23,7 +23,6 @@
 #' data(demo_MCBinformation)
 #' #select MCB with at least 3 CpGs.
 #' demo_MCBinformation<-demo_MCBinformation[demo_MCBinformation[,"CpGs_num"]>2,]
-#'
 #' trainingset<-colnames(datamatrix) %in% sample(colnames(datamatrix),0.6*length(colnames(datamatrix)))
 #' testingset<-!trainingset
 #' #create the results using Cox regression. 
