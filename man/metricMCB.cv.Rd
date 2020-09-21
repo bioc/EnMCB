@@ -4,7 +4,7 @@
 \alias{metricMCB.cv}
 \title{Calculation of model AUC for Methylation Correlation Blocks using cross validation}
 \usage{
-metricMCB(MCBset,training_set,Surv,testing_set,Surv.new,Method,silent)
+metricMCB.cv(MCBset,data_set,Surv,nfold,Method,seed,silent)
 }
 \arguments{
 \item{MCBset}{Methylation Correlation Block information returned by the IndentifyMCB function.}
@@ -24,7 +24,7 @@ metricMCB(MCBset,training_set,Surv,testing_set,Surv.new,Method,silent)
 \value{
 Object of class \code{list} with elements (XXX will be replaced with the model name you choose):
  \tabular{ll}{
-   \code{MCB_matrix} \tab Prediction results of model
+   \code{MCB_matrix} \tab Prediction results of model. \cr
    \code{auc_results} \tab AUC results for each model. \cr
  }
 }

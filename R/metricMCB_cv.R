@@ -5,7 +5,7 @@
 #' define the methylated pattern of multiple CpG sites within each block.
 #' Compound scores which calculated all CpGs within individual Methylation Correlation Blocks by SVM model
 #' were used as the compound methylation values of Methylation Correlation Blocks.
-#' @usage metricMCB(MCBset,training_set,Surv,testing_set,Surv.new,Method,silent)
+#' @usage metricMCB.cv(MCBset,data_set,Surv,nfold,Method,seed,silent)
 #' @export
 #' @param MCBset Methylation Correlation Block information returned by the IndentifyMCB function.
 #' @param data_set methylation matrix used for training the model in the analysis.
@@ -33,7 +33,7 @@
 #'
 #' @return Object of class \code{list} with elements (XXX will be replaced with the model name you choose):
 #'  \tabular{ll}{
-#'    \code{MCB_matrix} \tab Prediction results of model
+#'    \code{MCB_matrix} \tab Prediction results of model. \cr
 #'    \code{auc_results} \tab AUC results for each model. \cr
 #'  }
 #' @references
@@ -208,44 +208,6 @@ metricMCB.cv<-function(
     }else{
       write_MCB[3:5]<-NA
     }
-    MCB_model_res<-rbind(MCB_model_res,write_MCB)
-  }
-  colnames(MCB_model_res)<-c("MCB_no","CpGs","auc","C-index","C-index_SE")
-  rownames(MCB_matrix)<-MCB_model_res[,'MCB_no']
-  FunctionResults$MCB_matrix<-MCB_matrix
-  FunctionResults$auc_results<-MCB_model_res
-  return(FunctionResults)
-}
-
-is.integer0 <- function(x)
-{
-  is.integer(x) && length(x) == 0L
-}
-
-metricMCB.mean<-function(MCBset,MCB_matrix,Surv,data_set,show_bar=T){
-  FunctionResults<-list()
-  MCB_model_res<-NULL
-  if (show_bar) {
-    bar<-utils::txtProgressBar(min = 1,max = nrow(MCBset),char = "#",style = 3)
-  }
-  for (mcb in seq(nrow(MCBset))) {
-    utils::setTxtProgressBar(bar, mcb)
-    write_MCB<-rep(NA,5)
-    #save the mcb number
-    write_MCB[1]<-as.numeric(MCBset[mcb,'MCB_no'])
-    write_MCB[2]<-MCBset[mcb,'CpGs']
-    CpGs<-strsplit(MCBset[mcb,'CpGs']," ")[[1]]
-    MCB_matrix[mcb,]<-colMeans(data_set[CpGs,])
-    AUC_value<-survivalROC::survivalROC(Stime = Surv[,1],
-                                        status = Surv[,2],
-                                        marker = MCB_matrix[mcb,],
-                                        predict.time = 5,
-                                        method = "NNE",
-                                        span =0.25*length(Surv)^(-0.20))$AUC
-    write_MCB[3]<-AUC_value
-    cindex<-survival::survConcordance(Surv ~ MCB_matrix[mcb,])
-    write_MCB[4]<-cindex$concordance
-    write_MCB[5]<-cindex$std.err
     MCB_model_res<-rbind(MCB_model_res,write_MCB)
   }
   colnames(MCB_model_res)<-c("MCB_no","CpGs","auc","C-index","C-index_SE")
