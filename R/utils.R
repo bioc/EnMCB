@@ -390,7 +390,7 @@ draw_survival_curve<-function(exp,living_days,living_events,write_name,title_nam
                             fillLineSize=3,survSize=5,surv.linesize=5,pval = FALSE,
                             fontsize=2.5,
                             legend.labs = c("low risk","high risk"),xlab="Time (years)",
-                        censor.alpha=0.5,palette=c("#00BFC4","#F8766D"),
+                        censor.alpha=0.5,palette=c("#E69F00","#0072B2"),
                         title=paste(title_name ,"\n",p_value," HR ",round(HR,2),
                                          "(",round(up95,2) ,"-", round(low95,2),  ")",collapse = ""),
   ggtheme=ggplot2::theme(title =ggplot2::element_text(size=8, face='bold'),
