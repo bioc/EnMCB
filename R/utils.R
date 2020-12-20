@@ -20,7 +20,122 @@ print_as_data <- function(variables,file) {
   sink()
 }
 
+auc_cal_cv<- function(single_one,train_set,y_surv_train,nfold=10,seed=NULL) {
+  requireNamespace('survival')
+  
+  #remove all the NA and zero survival data
+  na_or_zero_data<-(is.na(y_surv_train[,1])|y_surv_train[,1]==0)
+  train_set = train_set[,!na_or_zero_data]
+  y_surv_train = y_surv_train[!na_or_zero_data]
+  
+  cox<-metricMCB.cv(t(single_one),train_set,y_surv_train,Method = 'cox',silent = T,seed = seed)
+  svr<-metricMCB.cv(t(single_one),train_set,y_surv_train,Method = 'svm',silent = T,seed = seed)
+  enet<-metricMCB.cv(t(single_one),train_set,y_surv_train,Method = 'enet',silent = T,seed = seed)
+  em<-metricMCB.cv(t(single_one),train_set,y_surv_train,Method = 'ensemble',silent = T,seed = seed)
+  
+  auc_COX_cv<-auc_roc(y_surv = y_surv_train,cox$MCB_matrix)
+  auc_SVR_cv<-auc_roc(y_surv = y_surv_train,svr$MCB_matrix)
+  auc_eNet_cv<-auc_roc(y_surv = y_surv_train,enet$MCB_matrix)
+  auc_em_cv<-auc_roc(y_surv = y_surv_train,em$MCB_matrix)
+  
+  return(c(single_one,
+           auc_COX_cv,auc_SVR_cv,auc_eNet_cv,auc_em_cv))
+}
 
+auc_cal_cv_tvt <- function(single_one,
+                           train_set,validation_set,test_set,
+                           y_surv_train,y_surv_validation,y_surv_test,
+                           seed=9){
+  requireNamespace(survival)
+  #remove all the NA and zero survival data
+  na_or_zero_data<-(is.na(y_surv_train[,1])|y_surv_train[,1]==0)
+  train_set = train_set[,!na_or_zero_data]
+  y_surv_train = y_surv_train[!na_or_zero_data]
+  
+  na_or_zero_data<-(is.na(y_surv_validation[,1])|y_surv_validation[,1]==0)
+  validation_set = validation_set[,!na_or_zero_data]
+  y_surv_validation = y_surv_validation[!na_or_zero_data]
+  
+  na_or_zero_data<-(is.na(y_surv_test[,1])|y_surv_test[,1]==0)
+  test_set = test_set[,!na_or_zero_data]
+  y_surv_test = y_surv_test[!na_or_zero_data]
+  
+  
+  cox<-metricMCB.cv(t(single_one),train_set,y_surv_train,Method = 'cox',silent = T,seed = seed)
+  svr<-metricMCB.cv(t(single_one),train_set,y_surv_train,Method = 'svm',silent = T,seed = seed)
+  enet<-metricMCB.cv(t(single_one),train_set,y_surv_train,Method = 'enet',silent = T,seed = seed)
+  em<-metricMCB.cv(t(single_one),train_set,y_surv_train,Method = 'ensemble',silent = T,seed = seed)
+  
+  auc_COX_train_cv<-auc_roc(y_surv = y_surv_train,cox$MCB_matrix)
+  auc_SVR_train_cv<-auc_roc(y_surv = y_surv_train,svr$MCB_matrix)
+  auc_eNet_train_cv<-auc_roc(y_surv = y_surv_train,enet$MCB_matrix)
+  auc_em_train_cv<-auc_roc(y_surv = y_surv_train,em$MCB_matrix)
+  
+  
+  vt_data<-cbind(validation_set,test_set)
+  vt_survival<-c(y_surv_validation,y_surv_test)
+  vt_flag<-c(rep('validation',ncol(validation_set)),
+             rep('test',ncol(test_set)))
+  
+  cox = metricMCB(t(single_one),
+                  training_set = train_set,
+                  Surv = y_surv_train,
+                  testing_set = vt_data,
+                  Surv.new = vt_survival,
+                  Method = 'cox',silent = T)
+  
+  svr = metricMCB(t(single_one),
+                  training_set = train_set,
+                  Surv = y_surv_train,
+                  testing_set = vt_data,
+                  Surv.new = vt_survival,
+                  Method = 'svm',silent = T) 
+  
+  enet = metricMCB(t(single_one),
+                   training_set = train_set,
+                   Surv = y_surv_train,
+                   testing_set = vt_data,
+                   Surv.new = vt_survival,
+                   Method = 'enet',silent = T)  
+  
+  em = EnMCB::ensemble_model(t(single_one),
+                             training_set = train_set,
+                             Surv_training = y_surv_train,
+                             testing_set = vt_data,
+                             Surv_testing = vt_survival)
+  prid_em<- EnMCB::ensemble_prediction(em,train_set)
+  test_and_validation_em<- EnMCB::ensemble_prediction(em,vt_data)
+  
+  auc_COX_train<-auc_roc(y_surv = y_surv_train,cox$MCB_cox_matrix_training)
+  auc_SVR_train<-auc_roc(y_surv = y_surv_train,svr$MCB_svm_matrix_training)
+  auc_eNet_train<-auc_roc(y_surv = y_surv_train,enet$MCB_enet_matrix_training)
+  auc_em_train<-auc_roc(y_surv = y_surv_train,prid_em)
+  
+  
+  auc_COX_validation<-auc_roc(y_surv = y_surv_validation,cox$MCB_cox_matrix_test_set[vt_flag == 'validation'])
+  auc_SVR_validation<-auc_roc(y_surv = y_surv_validation,svr$MCB_svm_matrix_test_set[vt_flag == 'validation'])
+  auc_eNet_validation<-auc_roc(y_surv = y_surv_validation,enet$MCB_enet_matrix_test_set[vt_flag == 'validation'])
+  auc_em_validation<-auc_roc(y_surv = y_surv_validation,test_and_validation_em[vt_flag == 'validation'])
+  
+  auc_COX_test<-auc_roc(y_surv = y_surv_test,cox$MCB_cox_matrix_test_set[vt_flag == 'test'])
+  auc_SVR_test<-auc_roc(y_surv = y_surv_test,svr$MCB_svm_matrix_test_set[vt_flag == 'test'])
+  auc_eNet_test<-auc_roc(y_surv = y_surv_test,enet$MCB_enet_matrix_test_set[vt_flag == 'test'])
+  auc_em_test<-auc_roc(y_surv = y_surv_test,test_and_validation_em[vt_flag == 'test'])
+  
+  return(c(single_one,
+           auc_COX_train_cv,auc_SVR_train_cv,auc_eNet_train_cv,auc_em_train_cv,
+           auc_COX_train,auc_SVR_train,auc_eNet_train,auc_em_train,
+           auc_COX_validation,auc_SVR_validation,auc_eNet_validation,auc_em_validation,
+           auc_COX_test,auc_SVR_test,auc_eNet_test,auc_em_test))
+}
+
+auc_roc <- function(y_surv,predictions) {
+  survivalROC::survivalROC.C(Stime = y_surv[,1],
+                             status = y_surv[,2],
+                             marker = predictions,
+                             predict.time = 5,
+                             span =0.25*length(y_surv[,1])^(-0.20))$AUC
+}
 
 
 test_logrank_p_in_KM<-function(mcb_matrix,y_surv){
@@ -192,44 +307,7 @@ plot_ROC<-function(perf){
   geom_roc(labels = FALSE, stat = "identity") + style_roc(theme = theme_grey)
 }
 
-ROC_mutiple_clinical<-function(test_frame,y_surv,genesel="title",ntime=5){
-    requireNamespace("prognosticROC") #version 0.7
-    sroclong_all<-NULL
-    for (n in seq_len(ncol(test_frame))) {
-      ROC_res= survivalROC::survivalROC(Stime=y_surv[,1],
-                                        status=y_surv[,2],
-                                        marker =as.numeric(test_frame[,n]),
-                                        lambda = NULL,
-                                        predict.time = ntime,method = "NNE",span =0.25*length(y_surv[,1])^(-0.20))#
-      sroclong_all<-ROCdata_save(sroclong_all,ROC_res,mark = paste(ntime,"year AUC at",colnames(test_frame)[n],round(ROC_res$AUC,2),collapse = " "))
-    }
-    gg<-ggplot2::ggplot(sroclong_all, aes(x = FPF, y = TPF, label = c, color = groups))+
-      coord_cartesian(ylim=c(0, 1.05),xlim=c(0, 1.05),expand=FALSE)+
-      geom_roc(labels = FALSE, stat = "identity") + style_roc(theme = theme_light())+
-      theme(panel.grid.major =element_blank(), panel.grid.minor = element_blank(),
-            panel.background = element_blank(),axis.line = element_line(colour = "black"))+
-      theme(legend.position=c(0.8,0.35), legend.justification=c(1,1),legend.title = element_blank())+
-      geom_abline(slope=1, colour="black")
-    ggplot2::ggsave(filename = paste("Time ROC of ",genesel,".jpeg",sep=""),plot = gg,device ="jpeg" ,
-           path = getwd(),dpi = 300,units = "in",width = 5, height = 4.5,
-           limitsize=FALSE)
-  }
 
-ROC_threshold <- function(predict, response) {
-  perf <-prediction(as.numeric(predict),as.numeric(response))
-  return(give_me_the_sen_spc(perf,print = FALSE))
-}
-
-ROCdata_save<-function(origin=NULL,perf,mark="none"){
-  sroclong<-data.frame(TPF = perf[["TP"]], FPF = perf[["FP"]],
-                       c = perf[["cut.values"]],
-                       groups = rep(mark,
-                                    length(perf[["FP"]])
-                                    )
-                       )
-  sroclong<-rbind(origin,sroclong)
-  sroclong
-}
 
 mutiple_time_ROC <- function(Test,y_surv,genesel) {
   requireNamespace(survivalROC) #version 1.0.3
@@ -330,4 +408,64 @@ draw_survival_curve<-function(exp,living_days,living_events,write_name,title_nam
 is.integer0 <- function(x)
 {
   is.integer(x) && length(x) == 0L
+}
+
+metricMCB.mean<-function(MCBset,MCB_matrix,Surv,data_set,show_bar=T){
+  FunctionResults<-list()
+  MCB_model_res<-NULL
+  if (show_bar) {
+    bar<-utils::txtProgressBar(min = 1,max = nrow(MCBset),char = "#",style = 3)
+  }
+  for (mcb in seq(nrow(MCBset))) {
+    utils::setTxtProgressBar(bar, mcb)
+    write_MCB<-rep(NA,5)
+    #save the mcb number
+    write_MCB[1]<-as.numeric(MCBset[mcb,'MCB_no'])
+    write_MCB[2]<-MCBset[mcb,'CpGs']
+    CpGs<-strsplit(MCBset[mcb,'CpGs']," ")[[1]]
+    MCB_matrix[mcb,]<-colMeans(data_set[CpGs,])
+    AUC_value<-survivalROC::survivalROC(Stime = Surv[,1],
+                                        status = Surv[,2],
+                                        marker = MCB_matrix[mcb,],
+                                        predict.time = 5,
+                                        method = "NNE",
+                                        span =0.25*length(Surv)^(-0.20))$AUC
+    write_MCB[3]<-AUC_value
+    cindex<-survival::survConcordance(Surv ~ MCB_matrix[mcb,])
+    write_MCB[4]<-cindex$concordance
+    write_MCB[5]<-cindex$std.err
+    MCB_model_res<-rbind(MCB_model_res,write_MCB)
+  }
+  colnames(MCB_model_res)<-c("MCB_no","CpGs","auc","C-index","C-index_SE")
+  rownames(MCB_matrix)<-MCB_model_res[,'MCB_no']
+  FunctionResults$MCB_matrix<-MCB_matrix
+  FunctionResults$auc_results<-MCB_model_res
+  return(FunctionResults)
+}
+
+ROCdata_save<-function(origin=NULL,perf,mark="none"){
+  sroclong<-data.frame(TPF = perf$TP, FPF =perf$FP, 
+                       c = perf$cut.values, 
+                       group = rep(mark, length(perf$TP)) )
+  sroclong<-rbind(origin,sroclong)
+  sroclong
+}
+
+ensemble_prediction.m<- function(ensemble_model,predition_data) {
+  predition_data<-predition_data[rownames(predition_data) %in% names(coef(ensemble_model$cox$cox_model)),]
+  if (nrow(predition_data)!=length(rownames(predition_data))) {
+    stop("ERROR: The predition data and the model have wrong dimensions!")
+  }
+  svm<-stats::predict(ensemble_model$svm$svm_model, data.frame(t(predition_data)))$predicted
+  cox<-stats::predict(ensemble_model$cox$cox_model, data.frame(t(predition_data)))
+  enet<-stats::predict(ensemble_model$enet$`enet model`,t(predition_data),s=ensemble_model$enet$`corrected lambda(min)`)
+  data<-rbind(cox,
+              svm,
+              t(enet)
+  )
+  rownames(data)<-c('cox','svm','enet')
+  data<-t(data)
+  data_f<-as.data.frame(data)
+  ensemble=stats::predict(ensemble_model$stacking, data_f)
+  return(t(cbind(data,ensemble)))
 }

@@ -17,7 +17,7 @@ metricMCB(MCBset,training_set,Surv,testing_set,Surv.new,Method,silent)
 
 \item{Surv.new}{Survival function contain the survival information for testing.}
 
-\item{Method}{model used to calculate the compound values for multiple Methylation correlation blocks. Options include "svm" "cox" and "eNet". The default option is SVM method.}
+\item{Method}{model used to calculate the compound values for multiple Methylation correlation blocks. Options include "svm" "cox" and "enet". The default option is SVM method.}
 
 \item{silent}{Ture indicates that processing information and progress bar will be shown.}
 }
@@ -35,7 +35,7 @@ Object of class \code{list} with elements (XXX will be replaced with the model n
 To enable quantitative analysis of the methylation patterns
 within individual Methylation Correlation Blocks across many samples, a single metric to
 define the methylated pattern of multiple CpG sites within each block.
-Compound scores which calculated all CpGs within individual Methylation Correlation Blocks by linear, SVM or lasso model
+Compound scores which calculated all CpGs within individual Methylation Correlation Blocks by linear, SVM or elastic-net model
 Predict values were used as the compound methylation values of Methylation Correlation Blocks.
 }
 \examples{

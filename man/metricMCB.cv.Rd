@@ -4,7 +4,7 @@
 \alias{metricMCB.cv}
 \title{Calculation of model AUC for Methylation Correlation Blocks using cross validation}
 \usage{
-metricMCB.cv(MCBset,data_set,Surv,nfold,Method,silent)
+metricMCB.cv(MCBset,data_set,Surv,nfold,Method,seed,silent)
 }
 \arguments{
 \item{MCBset}{Methylation Correlation Block information returned by the IndentifyMCB function.}
@@ -16,6 +16,8 @@ metricMCB.cv(MCBset,data_set,Surv,nfold,Method,silent)
 \item{nfold}{fold used in the cross validation precedure.}
 
 \item{Method}{model used to calculate the compound values for multiple Methylation correlation blocks. Options include "svm" "cox" and "lasso". The default option is SVM method.}
+
+\item{seed}{seed int for cross validation sampling.}
 
 \item{silent}{Ture indicates that processing information and progress bar will be shown.}
 }
