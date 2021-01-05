@@ -194,11 +194,19 @@ metricMCB.cv<-function(
     }
     MCB_matrix[mcb,]<-MCB_matrix[mcb,order_sp]
     if (sum(is.na(MCB_matrix[mcb,])) == 0){
+      if (Method=="svm"){
+        AUC_value<-survivalROC::survivalROC.C(Stime = Surv[,1],
+                                              status = Surv[,2],
+                                              marker = predict(survival::coxph(Surv ~ MCB_matrix[mcb,])),
+                                              predict.time = 5,
+                                              span =0.25*length(Surv)^(-0.20))$AUC
+      }else{
       AUC_value<-survivalROC::survivalROC.C(Stime = Surv[,1],
                                             status = Surv[,2],
                                             marker = MCB_matrix[mcb,],
                                             predict.time = 5,
                                             span =0.25*length(Surv)^(-0.20))$AUC
+      }
       write_MCB[3]<-AUC_value
       cindex<-survival::survConcordance(Surv ~ MCB_matrix[mcb,])
       write_MCB[4]<-cindex$concordance
