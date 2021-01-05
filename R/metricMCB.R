@@ -114,7 +114,7 @@ metricMCB<-function(
         write_MCB[2]<- survivalROC::survivalROC.C(Stime = times[,1],status = times[,2],marker = MCB_svm_matrix_training[mcb,rz],predict.time = 5, span =0.25*length(times)^(-0.20)  )$AUC
         #if it has a independent test set
         if (!is.null(testing_set)){
-          MCB_svm_matrix_test_set[mcb,]<-stats::predict(svm_model, data.frame(t(testing_set[CpGs,])))$predicted
+          MCB_svm_matrix_test_set[mcb,]<- pstats::predict(svm_model, data.frame(t(testing_set[CpGs,])))$predicted
           write_MCB[3]<- survivalROC::survivalROC.C(Stime = Surv.new[,1],status = Surv.new[,2],marker = MCB_svm_matrix_test_set[mcb,],predict.time = 5, span =0.25*length(Surv.new)^(-0.20) )$AUC
           if (abs(write_MCB[2]+write_MCB[3]-1)>best_auc){
             best_auc<-abs(write_MCB[2]+write_MCB[3]-1)
