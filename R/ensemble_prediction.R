@@ -28,8 +28,8 @@
 #' em_prediction_results<-ensemble_prediction(ensemble_model = em,
 #' predition_data = datamatrix[,testingset])
 #'
-ensemble_prediction <- function(ensemble_model,predition_data, mutiple_results = FALSE) {
-  if (mutiple_results) {
+ensemble_prediction <- function(ensemble_model,predition_data, multiple_results = FALSE) {
+  if (multiple_results) {
     return(ensemble_prediction.m(ensemble_model,predition_data))
   }
   predition_data<-predition_data[rownames(predition_data) %in% names(coef(ensemble_model$cox$cox_model)),]
