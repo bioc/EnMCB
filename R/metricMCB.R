@@ -110,7 +110,9 @@ metricMCB<-function(
       svm_model <- tryCatch(survivalsvm::survivalsvm(times ~ ., data_used_for_training, gamma.mu = 0.1,type = "regression"),error = function(e){NULL})
       #predictions
       if (!is.null(svm_model)) {
-        MCB_svm_matrix_training[mcb,]<-stats::predict(svm_model, data.frame(t(training_set[CpGs,])))$predicted
+        rank_svm<-stats::predict(svm_model, data.frame(t(training_set[CpGs,])))$predicted
+        risk_svm<-predict(survival::coxph(times~rank_svm),type = 'risk')
+        MCB_svm_matrix_training[mcb,]<-risk_svm
         write_MCB[2]<- survivalROC::survivalROC.C(Stime = times[,1],status = times[,2],marker = MCB_svm_matrix_training[mcb,rz],predict.time = 5, span =0.25*length(times)^(-0.20)  )$AUC
         #if it has a independent test set
         if (!is.null(testing_set)){
