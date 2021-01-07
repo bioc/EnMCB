@@ -110,13 +110,11 @@ metricMCB<-function(
       svm_model <- tryCatch(survivalsvm::survivalsvm(times ~ ., data_used_for_training, gamma.mu = 0.1,type = "regression"),error = function(e){NULL})
       #predictions
       if (!is.null(svm_model)) {
-        rank_svm<-stats::predict(svm_model, data.frame(t(training_set[CpGs,])))$predicted
-        risk_svm<-predict(survival::coxph(times~rank_svm),type = 'risk')
-        MCB_svm_matrix_training[mcb,]<-risk_svm
+        MCB_svm_matrix_training[mcb,]<-stats::predict(svm_model, data.frame(t(training_set[CpGs,])))$predicted
         write_MCB[2]<- survivalROC::survivalROC.C(Stime = times[,1],status = times[,2],marker = MCB_svm_matrix_training[mcb,rz],predict.time = 5, span =0.25*length(times)^(-0.20)  )$AUC
         #if it has a independent test set
         if (!is.null(testing_set)){
-          MCB_svm_matrix_test_set[mcb,]<- pstats::predict(svm_model, data.frame(t(testing_set[CpGs,])))$predicted
+          MCB_svm_matrix_test_set[mcb,]<- stats::predict(svm_model, data.frame(t(testing_set[CpGs,])))$predicted
           write_MCB[3]<- survivalROC::survivalROC.C(Stime = Surv.new[,1],status = Surv.new[,2],marker = MCB_svm_matrix_test_set[mcb,],predict.time = 5, span =0.25*length(Surv.new)^(-0.20) )$AUC
           if (abs(write_MCB[2]+write_MCB[3]-1)>best_auc){
             best_auc<-abs(write_MCB[2]+write_MCB[3]-1)
