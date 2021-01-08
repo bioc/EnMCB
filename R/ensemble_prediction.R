@@ -4,7 +4,7 @@
 #' The function invokes particular methods which is the ensemble model described in the reference.
 #' @param ensemble_model ensemble model which built by ensemble_model() function
 #' @param predition_data A vector, matrix, list, or data frame containing the predictions (input).
-#' @param mutiple_results Boolean vector, True for including the single model results.
+#' @param multiple_results Boolean vector, True for including the single model results.
 #' @references
 #' Xin Yu et al. 2019 Predicting disease progression in lung adenocarcinoma patients based on methylation correlated blocks using ensemble machine learning classifiers (under review)
 #' @export
