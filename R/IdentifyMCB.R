@@ -43,7 +43,7 @@ IdentifyMCB<-function(
   CorrelationThreshold = 0.8,
   PositionGap = 1000,
   platform = "Illumina Methylation 450K"
-
+  
 ){
   if (!(method %in% c("pearson","spearman","kendall"))) {
     stop(paste("Correlation method should be one of pearson, spearman and kendall."))
@@ -84,10 +84,14 @@ IdentifyMCB<-function(
            ann_matrix[i+1,'chr']==ann_matrix[i,'chr']){
           res<-rbind(res,c(unlist(stats::cor.test(met_matrix[i,],met_matrix[i+1,],method = method))[1:5]))
         }else{
-          res<-rbind(res,matrix(c(0,0,1,0,0),1,5))
+          if (method == "pearson") res<-rbind(res,matrix(c(0,0,1,0,0),1,5))
+          else if (method == "spearman") res<-rbind(res,matrix(c(0,1,0,0,0),1,5))
+          else if (method == "kendall") res<-rbind(res,matrix(c(0,1,0,0,0),1,5))
         }
       }else{
-        res<-rbind(res,matrix(c(0,0,1,0,0),1,5))
+        if (method == "pearson") res<-rbind(res,matrix(c(0,0,1,0,0),1,5))
+        else if (method == "spearman") res<-rbind(res,matrix(c(0,1,0,0,0),1,5))
+        else if (method == "kendall") res<-rbind(res,matrix(c(0,1,0,0,0),1,5))
       }
     }
     rownames(res)<-rownames(met_matrix)
@@ -104,7 +108,7 @@ IdentifyMCB<-function(
   MCBsites<-union(grep("MCB",MCB_flag),grep("MCB",MCB_flag)+1)
   MCBsites<-MCBsites[order(MCBsites)]
   FunctionResults$MCBsites<-rownames(MethylationProfile)[MCBsites]
-
+  
   MCB<-rep(NA,times=7)
   names(MCB)<-c("MCB_no","start","end","CpGs","location","chromosomes","length")
   MCB_block=FALSE
@@ -122,9 +126,9 @@ IdentifyMCB<-function(
       MCB["end"] <- i
       MCB["CpGs"]<- paste(rownames(correlation_res)[as.numeric(MCB["start"]):(as.numeric(MCB["end"]))],collapse = " ")
       MCB["location"]<-paste(met_cg_allgene[as.numeric(MCB["start"]),'chr'],":",
-                                   met_cg_allgene[as.numeric(MCB["start"]),'pos'],"-",
-                                   met_cg_allgene[as.numeric(MCB["end"]),'chr'],":",
-                                   met_cg_allgene[as.numeric(MCB["end"]),'pos'],collapse = "")
+                             met_cg_allgene[as.numeric(MCB["start"]),'pos'],"-",
+                             met_cg_allgene[as.numeric(MCB["end"]),'chr'],":",
+                             met_cg_allgene[as.numeric(MCB["end"]),'pos'],collapse = "")
       MCB["chromosomes"]<-met_cg_allgene[as.numeric(MCB["start"]),'chr']
       MCB["length"]<-as.numeric(met_cg_allgene[as.numeric(MCB["end"]),'pos'])-
         as.numeric(met_cg_allgene[as.numeric(MCB["start"]),'pos'])
