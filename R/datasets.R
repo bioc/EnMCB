@@ -21,6 +21,15 @@
 #' @usage data(demo_survival_data)
 "demo_survival_data"
 
+#' IlluminaHumanMethylation450kanno
+#' @format IlluminaHumanMethylation450kanno.ilmn12.hg19 annotation file.
+#' This data have several columns
+#' @usage data(anno_matrix)
+"anno_matrix"
+
+
+
+
 #' MCB information.
 #' @description
 #' A dataset containing the number and other attributes of 94 MCBs; 

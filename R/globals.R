@@ -14,7 +14,7 @@
 
 
 
-utils::globalVariables(c('FPF','TPF','aes','chr_id','coef','coord_cartesian','doParallel','data',
+utils::globalVariables(c('FPF','TPF','aes','chr_id','coef','coord_cartesian','doParallel','data','anno_matrix',
                          'element_blank','element_line','foreach','geom_abline','geom_roc','ggplot','rnorm',
                          'ggplot2','ggsave','groups','median','new','parallel','pheatmap','plot','demo_data',
                          'prediction','prognosticROC','qnorm','style_roc','survivalROC','theme','boot','boot.ci',

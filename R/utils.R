@@ -1,26 +1,28 @@
 # load private functions
+# get450kAnno = function() {
+#   
+#   ca = BiocFileCache::BiocFileCache()
+#   
+#   q = BiocFileCache::bfcquery(ca, "450kanno.ilmn12.hg19")
+#   
+#   if (length(q$rpath)>0) return(readRDS(rev(q$rpath)[1])) # if multiple, use last
+#   
+#   if (!requireNamespace("minfi")) stop("install the minfi package to use this function")
+#   
+#   anno = minfi::getAnnotation("IlluminaHumanMethylation450kanno.ilmn12.hg19")
+#   
+#   tf = tempfile()
+#   
+#   saveRDS(anno, tf)
+#   
+#   BiocFileCache::bfcadd(ca, rname="IlluminaHumanMethylation450kanno.ilmn12.hg19", fpath=tf,
+#                         action="move")  # for future
+#   anno
+# }
+
 get450kAnno = function() {
-  
-  ca = BiocFileCache::BiocFileCache()
-  
-  q = BiocFileCache::bfcquery(ca, "450kanno.ilmn12.hg19")
-  
-  if (length(q$rpath)>0) return(readRDS(rev(q$rpath)[1])) # if multiple, use last
-  
-  if (!requireNamespace("minfi")) stop("install the minfi package to use this function")
-  
-  anno = minfi::getAnnotation("IlluminaHumanMethylation450kanno.ilmn12.hg19")
-  
-  tf = tempfile()
-  
-  saveRDS(anno, tf)
-  
-  BiocFileCache::bfcadd(ca, rname="IlluminaHumanMethylation450kanno.ilmn12.hg19", fpath=tf,
-                        
-                        action="move")  # for future
-  
-  anno
-  
+  utils::data(anno_matrix,package = "EnMCB")
+  anno_matrix
 }
 
 print_as_data <- function(variables,file) {
