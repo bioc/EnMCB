@@ -7,8 +7,8 @@ Author: Xin Yu
 Maintainer: Xin Yu <whirlsyu@gmail.com>
 Depends: R (>= 4.0)
 Encoding: UTF-8
-Imports: methods, stats, survivalROC, glmnet, rms, mboost, Matrix, igraph,
-    survivalsvm, ggplot2, boot, e1071, survival, utils, BiocFileCache
+Imports:survivalROC, glmnet, rms, mboost, Matrix, igraph, methods,
+    survivalsvm, ggplot2, boot, e1071, survival, BiocFileCache
 ImportFrom:
 VignetteBuilder: knitr
 Suggests: 
